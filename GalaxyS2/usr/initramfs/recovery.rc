@@ -9,12 +9,13 @@ on init
 
     mkdir /sdcard
     mkdir /sdcard1
+    mkdir /emmc
     mkdir /system
     mkdir /data
     mkdir /cache
     mkdir /preload
-    mkdir /efs
-    mkdir /tmp
+    mount /tmp /tmp tmpfs
+    symlink /res/etc /etc
 
     chown root shell /tmp
     chmod 0775 /tmp
@@ -22,6 +23,11 @@ on init
 # ko files for exfat
     insmod /lib/modules/exfat_core.ko
     insmod /lib/modules/exfat_fs.ko
+
+on fs
+    mount ext4 /dev/block/mmcblk0p11 /system noatime wait
+    mkdir /efs
+    mount ext4 /dev/block/mmcblk0p1 /efs nosuid nodev noatime wait 
 
 on boot
 
@@ -33,6 +39,9 @@ on boot
 
 service ueventd /sbin/ueventd
     critical
+
+on property:ro.debuggable=1
+    start console
 
 service recovery /sbin/recovery
 
